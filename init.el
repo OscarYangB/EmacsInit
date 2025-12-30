@@ -17,6 +17,8 @@
 (setq auto-save-default nil)
 (setq make-backup-files nil)
 
+(setq confirm-kill-processes nil)
+
 ; Keybinds ;------------------------------------------------------------------------------------
 (global-unset-key (kbd "RET"))
 (global-set-key (kbd "RET") 'reindent-then-newline-and-indent)
@@ -196,7 +198,8 @@ with the same file extension (if any) as the current buffer."
  '(company-show-quick-access t nil nil "Customized with use-package company")
  '(package-selected-packages
    '(ag avy company dap-mode flycheck helm-xref hydra lsp-mode
-		lsp-treemacs magit projectile smartparens which-key yasnippet)))
+		lsp-treemacs magit projectile rustic smartparens which-key
+		yasnippet)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -216,6 +219,7 @@ with the same file extension (if any) as the current buffer."
 (which-key-mode)
 (add-hook 'c-mode-hook 'lsp)
 (add-hook 'c++-mode-hook 'lsp)
+
 (defun my-c++-mode-hook ()
   (setq c-basic-offset 4)
   (c-set-offset 'substatement-open 0))
@@ -233,7 +237,8 @@ with the same file extension (if any) as the current buffer."
   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
   (require 'dap-cpptools)
   (yas-global-mode))
-  (setq lsp-semantic-tokens-enable t)
+
+(setq lsp-semantic-tokens-enable t)
   (setq lsp-clients-clangd-args '("-j=8"
                                 "--background-index"
                                 "--clang-tidy"
@@ -320,3 +325,8 @@ with the same file extension (if any) as the current buffer."
 (sp-local-pair 'prog-mode "{" nil :post-handlers '((indent-between-pair "RET")))
 (sp-local-pair 'prog-mode "[" nil :post-handlers '((indent-between-pair "RET")))
 (sp-local-pair 'prog-mode "(" nil :post-handlers '((indent-between-pair "RET")))
+
+
+
+
+
