@@ -19,6 +19,8 @@
 
 (setq confirm-kill-processes nil)
 
+(add-hook 'before-save-hook #'delete-trailing-whitespace)
+
 ; Keybinds ;------------------------------------------------------------------------------------
 (global-unset-key (kbd "RET"))
 (global-set-key (kbd "RET") 'reindent-then-newline-and-indent)
@@ -58,16 +60,20 @@
 (define-key isearch-mode-map (kbd "C-S-f") 'isearch-repeat-backward)
 
 (defun indent-lines(&optional N)
-    (interactive)
+  (interactive)
+  (if (region-active-p)
+      (indent-rigidly-right-to-tab-stop (region-beginning) (region-end))
     (indent-rigidly (line-beginning-position)
-                    (line-end-position)
-                    (* (or N 1) tab-width)))
+					(line-end-position)
+					(* (or N 1) tab-width))))
 
 (defun unindent-lines(&optional N)
-    (interactive)
+  (interactive)
+  (if (region-active-p)
+      (indent-rigidly-left-to-tab-stop (region-beginning) (region-end))
     (indent-rigidly (line-beginning-position)
-                    (line-end-position)
-                    (* (or N -1) tab-width)))
+					(line-end-position)
+					(* (or N -1) tab-width))))
 
 (global-unset-key (kbd "<tab>"))
 (global-set-key (kbd "<tab>") 'indent-lines)
@@ -95,7 +101,7 @@ with the same file extension (if any) as the current buffer."
   :type 'symbol
   :group 'cua-mini)
 
-(defun mark-whole-line ()               
+(defun mark-whole-line ()
     "Combinition of C-a, mark, C-e"
     (interactive)
     (move-beginning-of-line nil)
@@ -158,10 +164,11 @@ with the same file extension (if any) as the current buffer."
   "C-S-s" #'cua-mini-save-as
   "C-x" #'cua-mini-cut
   "C-z" #'undo
+  "C-S-z" #'undo-redo
   "C-v" #'yank
   "C-d" #'move-end-of-line)
 
-(define-key key-translation-map [?\C-c] [?\C-`])  
+(define-key key-translation-map [?\C-c] [?\C-`])
 (define-key key-translation-map [?\C-`] [?\C-c])
 
 (defun cua-mini-on ()
@@ -187,7 +194,7 @@ with the same file extension (if any) as the current buffer."
 
 ; Packages ;------------------------------------------------------------------------------
 (require 'package)
-(add-to-list 'package-archives 
+(add-to-list 'package-archives
     '("MELPA" .
       "http://melpa.org/packages/"))
 (custom-set-variables
@@ -208,7 +215,8 @@ with the same file extension (if any) as the current buffer."
  )
 
 (with-eval-after-load 'treemacs
-  (setq treemacs-collapse-dirs 0))
+  (setq treemacs-collapse-dirs 0)
+  (treemacs-git-mode -1))
 
 (helm-mode)
 (require 'helm-xref)
@@ -224,6 +232,8 @@ with the same file extension (if any) as the current buffer."
   (setq c-basic-offset 4)
   (c-set-offset 'substatement-open 0))
 (add-hook 'c++-mode-hook 'my-c++-mode-hook)
+
+(setq c-basic-offset 4)
 
 (setq gc-cons-threshold (* 100 1024 1024)
       read-process-output-max (* 1024 1024)
@@ -244,15 +254,18 @@ with the same file extension (if any) as the current buffer."
                                 "--clang-tidy"
 								"--enable-config"))
 
-(require 'dap-cpptools)
-(dap-register-debug-template
-  "cpptools::Run Configuration"
-  (list :type "cppdbg"
-        :request "launch"
-        :name "cpptools::Run Configuration"
-        :MIMode "gdb"
-        :program "C:\\Users\\Oscar\\Documents\\Repos\\godot\\bin\\godot.windows.editor.x86_64.llvm.exe"
-        :cwd "C:\\Users\\Oscar\\Documents\\debugger"))
+(setq lsp-rust-analyzer-cargo-extra-env '((CARGO_PROFILE_RUST_ANALYZER_INHERITS . "dev")))
+;(setq lsp-rust-analyzer-cargo-extra-args '("--profile" "rust-analyzer"))
+
+;; (require 'dap-cpptools)
+;; (dap-register-debug-template
+;;   "cpptools::Run Configuration"
+;;   (list :type "cppdbg"
+;;         :request "launch"
+;;         :name "cpptools::Run Configuration"
+;;         :MIMode "gdb"
+;;         :program "C:\\Users\\Oscar\\Documents\\Repos\\ILATSPIDK\\build\\ILATSPIDK.exe"
+;;         :cwd "C:\\Users\\Oscar\\Documents\\debugger"))
 
 (require 'flycheck)
 (set-face-attribute 'flycheck-error nil :underline '(:color "red" :style wave))
@@ -291,6 +304,9 @@ with the same file extension (if any) as the current buffer."
 (global-unset-key (kbd "C-;"))
 (global-set-key (kbd "C-;") 'magit)
 
+(global-unset-key (kbd "C-/"))
+(global-set-key (kbd "C-/") 'lsp-describe-thing-at-point)
+
 (use-package pixel-scroll
   :custom
   (pixel-scroll-precision-interpolation-factor 1.0)
@@ -325,8 +341,3 @@ with the same file extension (if any) as the current buffer."
 (sp-local-pair 'prog-mode "{" nil :post-handlers '((indent-between-pair "RET")))
 (sp-local-pair 'prog-mode "[" nil :post-handlers '((indent-between-pair "RET")))
 (sp-local-pair 'prog-mode "(" nil :post-handlers '((indent-between-pair "RET")))
-
-
-
-
-
