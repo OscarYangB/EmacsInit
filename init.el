@@ -21,6 +21,8 @@
 
 (add-hook 'before-save-hook #'delete-trailing-whitespace)
 
+(global-auto-revert-mode)
+
 ; Keybinds ;------------------------------------------------------------------------------------
 (global-unset-key (kbd "RET"))
 (global-set-key (kbd "RET") 'reindent-then-newline-and-indent)
@@ -62,18 +64,18 @@
 (defun indent-lines(&optional N)
   (interactive)
   (if (region-active-p)
-      (indent-rigidly-right-to-tab-stop (region-beginning) (region-end))
+      (indent-rigidly (region-beginning) (region-end) 4)
     (indent-rigidly (line-beginning-position)
 					(line-end-position)
-					(* (or N 1) tab-width))))
+					(* (or N 1) 4))))
 
 (defun unindent-lines(&optional N)
   (interactive)
   (if (region-active-p)
-      (indent-rigidly-left-to-tab-stop (region-beginning) (region-end))
+      (indent-rigidly (region-beginning) (region-end) -4)
     (indent-rigidly (line-beginning-position)
 					(line-end-position)
-					(* (or N -1) tab-width))))
+					(* (or N -1) 4))))
 
 (global-unset-key (kbd "<tab>"))
 (global-set-key (kbd "<tab>") 'indent-lines)
@@ -205,8 +207,8 @@ with the same file extension (if any) as the current buffer."
  '(company-show-quick-access t nil nil "Customized with use-package company")
  '(package-selected-packages
    '(ag avy company dap-mode flycheck helm-xref hydra lsp-mode
-		lsp-treemacs magit projectile rustic smartparens which-key
-		yasnippet)))
+		lsp-pyright lsp-treemacs magit projectile rustic smartparens
+		which-key yasnippet)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -254,21 +256,16 @@ with the same file extension (if any) as the current buffer."
                                 "--clang-tidy"
 								"--enable-config"))
 
-(setq lsp-rust-analyzer-cargo-extra-env '((CARGO_PROFILE_RUST_ANALYZER_INHERITS . "dev")))
-;(setq lsp-rust-analyzer-cargo-extra-args '("--profile" "rust-analyzer"))
-
-;; (require 'dap-cpptools)
-;; (dap-register-debug-template
-;;   "cpptools::Run Configuration"
-;;   (list :type "cppdbg"
-;;         :request "launch"
-;;         :name "cpptools::Run Configuration"
-;;         :MIMode "gdb"
-;;         :program "C:\\Users\\Oscar\\Documents\\Repos\\ILATSPIDK\\build\\ILATSPIDK.exe"
-;;         :cwd "C:\\Users\\Oscar\\Documents\\debugger"))
-
 (require 'flycheck)
 (set-face-attribute 'flycheck-error nil :underline '(:color "red" :style wave))
+
+(use-package lsp-pyright
+  :ensure t
+  :custom (lsp-pyright-langserver-command "basedpyright")
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-pyright)
+                          (lsp)
+						  (setq python-indent 4))))  ; or lsp-deferred
 
 ; Package Input ; --------------------------------------------------------------------------------------
 (global-unset-key (kbd "C-t"))
