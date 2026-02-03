@@ -27,8 +27,6 @@
 (global-unset-key (kbd "RET"))
 (global-set-key (kbd "RET") 'reindent-then-newline-and-indent)
 
-(electric-quote-mode)
-
 (global-unset-key (kbd "C-<tab>"))
 (global-set-key (kbd "C-<tab>") 'other-window)
 
@@ -60,6 +58,8 @@
 (global-unset-key (kbd "C-S-f"))
 (global-set-key (kbd "C-S-f") 'isearch-backward)
 (define-key isearch-mode-map (kbd "C-S-f") 'isearch-repeat-backward)
+
+(global-unset-key (kbd "C-\\"))
 
 (defun indent-lines(&optional N)
   (interactive)
@@ -338,3 +338,5 @@ with the same file extension (if any) as the current buffer."
 (sp-local-pair 'prog-mode "{" nil :post-handlers '((indent-between-pair "RET")))
 (sp-local-pair 'prog-mode "[" nil :post-handlers '((indent-between-pair "RET")))
 (sp-local-pair 'prog-mode "(" nil :post-handlers '((indent-between-pair "RET")))
+
+(setq completion-ignore-case t)
