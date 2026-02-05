@@ -146,14 +146,6 @@ with the same file extension (if any) as the current buffer."
     (with-current-buffer buffer (call-interactively mode))
     (pop-to-buffer-same-window buffer)))
 
-(defun cua-mini-save-as ()
-  "Show systems File save-as dialog."
-  (interactive)
-  (let ((use-dialog-box t)
-        (use-file-dialog t)
-        (last-nonmenu-event nil))
-    (call-interactively #'write-file)))
-
 (defvar-local c-c-map (make-sparse-keymap))
 
 (defvar-keymap cua-mini-mode-map
@@ -163,7 +155,6 @@ with the same file extension (if any) as the current buffer."
   "C-S-<SPC>" global-map
   "C-n" #'cua-mini-new
   "C-s" #'save-buffer
-  "C-S-s" #'cua-mini-save-as
   "C-x" #'cua-mini-cut
   "C-z" #'undo
   "C-S-z" #'undo-redo
@@ -254,7 +245,9 @@ with the same file extension (if any) as the current buffer."
   (setq lsp-clients-clangd-args '("-j=8"
                                 "--background-index"
                                 "--clang-tidy"
-								"--enable-config"))
+								"--enable-config"
+								"--experimental-modules-support"
+								"--header-insertion=never"))
 
 (require 'flycheck)
 (set-face-attribute 'flycheck-error nil :underline '(:color "red" :style wave))
@@ -266,6 +259,14 @@ with the same file extension (if any) as the current buffer."
                           (require 'lsp-pyright)
                           (lsp)
 						  (setq python-indent 4))))  ; or lsp-deferred
+
+(with-eval-after-load 'company
+  (define-key company-active-map
+              (kbd "<tab>")
+              #'company-select-next-or-abort)
+  (define-key company-active-map (kbd "<up>") nil)
+  (define-key company-active-map (kbd "<down>") nil)
+  (define-key company-active-map (kbd "C-s") nil))
 
 ; Package Input ; --------------------------------------------------------------------------------------
 (global-unset-key (kbd "C-t"))
@@ -340,3 +341,10 @@ with the same file extension (if any) as the current buffer."
 (sp-local-pair 'prog-mode "(" nil :post-handlers '((indent-between-pair "RET")))
 
 (setq completion-ignore-case t)
+
+(defun backward-delete-word (arg)
+  "Delete characters backward until encountering the beginning of a word.
+With argument ARG, do this that many times."
+ (interactive "p")
+  (delete-region (point) (progn (backward-word arg) (point))))
+(global-set-key (kbd "C-<backspace>") 'backward-delete-word)
