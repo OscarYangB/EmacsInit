@@ -261,12 +261,18 @@ with the same file extension (if any) as the current buffer."
 						  (setq python-indent 4))))  ; or lsp-deferred
 
 (with-eval-after-load 'company
-  (define-key company-active-map
-              (kbd "<tab>")
-              #'company-select-next-or-abort)
+  (define-key company-active-map (kbd "<tab>") #'company-select-next-or-abort)
+  (define-key company-active-map (kbd "S-<tab>") #'company-select-previous-or-abort)
   (define-key company-active-map (kbd "<up>") nil)
   (define-key company-active-map (kbd "<down>") nil)
   (define-key company-active-map (kbd "C-s") nil))
+
+(with-eval-after-load 'yasnippet
+  (define-key yas-keymap (kbd "<right>") 'yas-next-field)
+  (define-key yas-keymap (kbd "<left>") 'yas-prev-field))
+
+(with-eval-after-load 'magit
+  (define-key magit-mode-map (kbd "<tab>") #'magit-section-cycle))
 
 ; Package Input ; --------------------------------------------------------------------------------------
 (global-unset-key (kbd "C-t"))
@@ -299,11 +305,35 @@ with the same file extension (if any) as the current buffer."
 (global-unset-key (kbd "C-b"))
 (global-set-key (kbd "C-b") 'dap-breakpoint-toggle)
 
+(global-unset-key (kbd "M-b"))
+(global-set-key (kbd "M-b") 'dap-debug)
+
+(global-unset-key (kbd "C-1"))
+(global-set-key (kbd "C-1") 'dap-step-in)
+
+(global-unset-key (kbd "C-2"))
+(global-set-key (kbd "C-2") 'dap-next)
+
+(global-unset-key (kbd "C-3"))
+(global-set-key (kbd "C-3") 'dap-step-out)
+
+(global-unset-key (kbd "C-4"))
+(global-set-key (kbd "C-4") 'dap-continue)
+
 (global-unset-key (kbd "C-;"))
 (global-set-key (kbd "C-;") 'magit)
 
 (global-unset-key (kbd "C-/"))
 (global-set-key (kbd "C-/") 'lsp-describe-thing-at-point)
+
+(with-eval-after-load 'dap-mode
+  (add-hook 'dap-session-created-hook
+    (lambda (a)
+	  (global-set-key (kbd "M-b") 'dap-delete-session)))
+  (add-hook 'dap-terminated-hook
+    (lambda (a)
+	  (global-set-key (kbd "M-b") 'dap-debug)))
+  (setq dap-auto-show-output nil))
 
 (use-package pixel-scroll
   :custom
