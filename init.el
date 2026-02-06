@@ -272,6 +272,7 @@ with the same file extension (if any) as the current buffer."
   (define-key yas-keymap (kbd "<left>") 'yas-prev-field))
 
 (with-eval-after-load 'magit
+  (define-key magit-mode-map (kbd "<C-tab>") nil)
   (define-key magit-mode-map (kbd "<tab>") #'magit-section-cycle))
 
 ; Package Input ; --------------------------------------------------------------------------------------
