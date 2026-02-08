@@ -1,4 +1,4 @@
-; Visuals ;------------------------------------------------------------------------------------
+; Visuals ;------------------------------------------------------------------------------------  -*- lexical-binding: t; -*-
 (toggle-frame-fullscreen)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -23,6 +23,8 @@
 
 (global-auto-revert-mode)
 
+(setq package-native-compile t)
+
 ; Keybinds ;------------------------------------------------------------------------------------
 (global-unset-key (kbd "RET"))
 (global-set-key (kbd "RET") 'reindent-then-newline-and-indent)
@@ -43,7 +45,7 @@
 (global-set-key (kbd "C-w") 'delete-window)
 
 (global-unset-key (kbd "C-p"))
-(global-set-key (kbd "C-p") 'project-shell)
+(global-set-key (kbd "C-p") 'project-eshell)
 
 (global-unset-key (kbd "C-u"))
 (global-set-key (kbd "C-u") 'bookmark-set)
@@ -198,7 +200,7 @@ with the same file extension (if any) as the current buffer."
  '(company-show-quick-access t nil nil "Customized with use-package company")
  '(package-selected-packages
    '(ag avy company dap-mode flycheck helm-xref hydra lsp-mode
-		lsp-pyright lsp-treemacs magit projectile rustic smartparens
+		lsp-pyright magit projectile rustic smartparens treemacs
 		which-key yasnippet)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -272,8 +274,22 @@ with the same file extension (if any) as the current buffer."
   (define-key yas-keymap (kbd "<left>") 'yas-prev-field))
 
 (with-eval-after-load 'magit
+  (setq magit-git-executable "C:/Program Files/Git/bin/git.exe")
   (define-key magit-mode-map (kbd "<C-tab>") nil)
-  (define-key magit-mode-map (kbd "<tab>") #'magit-section-cycle))
+  (define-key magit-mode-map (kbd "<tab>") #'magit-section-cycle)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-status-headers)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-stashes)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-upstream-or-recent)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-pushremote)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-merge-log)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-am-sequence)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-sequencer-sequence)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-bisect-output)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-bisect-rest)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-bisect-log)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-pushremote)
+  (remove-hook 'magit-status-sections-hook 'magit-insert-rebase-sequence))
 
 ; Package Input ; --------------------------------------------------------------------------------------
 (global-unset-key (kbd "C-t"))
@@ -321,8 +337,9 @@ with the same file extension (if any) as the current buffer."
 (global-unset-key (kbd "C-4"))
 (global-set-key (kbd "C-4") 'dap-continue)
 
-(global-unset-key (kbd "C-;"))
-(global-set-key (kbd "C-;") 'magit)
+(define-key input-decode-map [?\C-m] [C-m])
+(global-unset-key (kbd "<C-m>"))
+(global-set-key (kbd "<C-m>") 'magit)
 
 (global-unset-key (kbd "C-/"))
 (global-set-key (kbd "C-/") 'lsp-describe-thing-at-point)
@@ -379,3 +396,19 @@ With argument ARG, do this that many times."
  (interactive "p")
   (delete-region (point) (progn (backward-word arg) (point))))
 (global-set-key (kbd "C-<backspace>") 'backward-delete-word)
+
+; Custom Dialogue Mode ; --------------------------------------------------------------------------------------
+(defvar my-highlights nil "first element for `font-lock-defaults'")
+
+(setq my-highlights
+      '(("\\(goto:.*\\)" . (1 'font-lock-keyword-face))
+		("\\(var:.*\\)" . (1 'font-lock-keyword-face))
+		("\\(end\\)" . (1 'font-lock-keyword-face))
+		("\\([^\s^\n^]*:\\)" . (1 'font-lock-variable-name-face))
+		("\\(\\[.*\\]\\)" . (1 'font-lock-function-name-face))))
+
+(define-derived-mode dlg-mode fundamental-mode "dlg-mode"
+  "major mode for editing dialogue."
+  (setq font-lock-defaults '(my-highlights)))
+
+(add-to-list 'auto-mode-alist '("\\.dlg\\'" . dlg-mode))
