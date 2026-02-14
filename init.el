@@ -402,13 +402,26 @@ With argument ARG, do this that many times."
 
 (setq my-highlights
       '(("\\(goto:.*\\)" . (1 'font-lock-keyword-face))
+		("\\(#.*\\)" . (1 'font-lock-comment-face))
 		("\\(var:.*\\)" . (1 'font-lock-keyword-face))
 		("\\(end\\)" . (1 'font-lock-keyword-face))
 		("\\([^\s^\n^]*:\\)" . (1 'font-lock-variable-name-face))
 		("\\(\\[.*\\]\\)" . (1 'font-lock-function-name-face))))
 
+(defun my-nesting-indent-line-function ()
+  "Indent according to nesting of balanced pairs in the current mode."
+  (interactive)
+  (save-excursion
+    (back-to-indentation)
+    (while (eq ?\) (char-syntax (following-char)))
+      (forward-char))
+    (indent-line-to
+     (* standard-indent (syntax-ppss-depth (syntax-ppss (point))))))
+  (back-to-indentation))
+
 (define-derived-mode dlg-mode fundamental-mode "dlg-mode"
   "major mode for editing dialogue."
-  (setq font-lock-defaults '(my-highlights)))
+  (setq font-lock-defaults '(my-highlights))
+  (set (make-local-variable 'indent-line-function) #'my-nesting-indent-line-function))
 
 (add-to-list 'auto-mode-alist '("\\.dlg\\'" . dlg-mode))
