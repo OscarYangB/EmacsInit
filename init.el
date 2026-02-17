@@ -32,6 +32,9 @@
 (global-unset-key (kbd "C-<tab>"))
 (global-set-key (kbd "C-<tab>") 'other-window)
 
+(global-unset-key (kbd "C-S-<tab>"))
+(global-set-key (kbd "C-S-<tab>") 'other-window-backward)
+
 (global-unset-key (kbd "C-y"))
 (global-set-key (kbd "C-y") 'comment-dwim)
 
@@ -201,7 +204,8 @@ with the same file extension (if any) as the current buffer."
  '(package-selected-packages
    '(ag avy company dap-mode flycheck helm-xref hydra lsp-mode
 		lsp-pyright magit projectile rustic smartparens treemacs
-		which-key yasnippet)))
+		which-key winpulse yasnippet))
+ '(package-vc-selected-packages '((winpulse :url "https://github.com/xenodium/winpulse"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -322,6 +326,9 @@ with the same file extension (if any) as the current buffer."
 (global-unset-key (kbd "C-b"))
 (global-set-key (kbd "C-b") 'dap-breakpoint-toggle)
 
+(global-unset-key (kbd "C-S-b"))
+(global-set-key (kbd "C-S-b") 'dap-breakpoint-delete-all)
+
 (global-unset-key (kbd "M-b"))
 (global-set-key (kbd "M-b") 'dap-debug)
 
@@ -336,6 +343,15 @@ with the same file extension (if any) as the current buffer."
 
 (global-unset-key (kbd "C-4"))
 (global-set-key (kbd "C-4") 'dap-continue)
+
+(define-key input-decode-map [?\C-i] [C-i])
+(global-unset-key (kbd "<C-i>"))
+(global-set-key (kbd "<C-i>") 'dap-ui-expressions-add)
+
+(define-key input-decode-map [?\C-\S-i] [C-S-i])
+(global-unset-key (kbd "<C-S-i>"))
+(global-set-key (kbd "<C-S-i>") 'dap-ui-expressions-remove)
+
 
 (define-key input-decode-map [?\C-m] [C-m])
 (global-unset-key (kbd "<C-m>"))
@@ -425,3 +441,9 @@ With argument ARG, do this that many times."
   (set (make-local-variable 'indent-line-function) #'my-nesting-indent-line-function))
 
 (add-to-list 'auto-mode-alist '("\\.dlg\\'" . dlg-mode))
+
+(use-package winpulse
+  :vc (:url "https://github.com/xenodium/winpulse"
+       :rev :newest)
+  :config
+  (winpulse-mode +1))
