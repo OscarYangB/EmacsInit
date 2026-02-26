@@ -48,7 +48,7 @@
 (global-set-key (kbd "C-w") 'delete-window)
 
 (global-unset-key (kbd "C-p"))
-(global-set-key (kbd "C-p") 'project-eshell)
+(global-set-key (kbd "C-p") 'project-shell)
 
 (global-unset-key (kbd "C-u"))
 (global-set-key (kbd "C-u") 'bookmark-set)
@@ -215,6 +215,7 @@ with the same file extension (if any) as the current buffer."
 
 (with-eval-after-load 'treemacs
   (setq treemacs-collapse-dirs 0)
+  (define-key treemacs-mode-map (kbd "<left>") #'treemacs-COLLAPSE-action)
   (treemacs-git-mode -1))
 
 (helm-mode)
@@ -410,7 +411,8 @@ with the same file extension (if any) as the current buffer."
   "Delete characters backward until encountering the beginning of a word.
 With argument ARG, do this that many times."
  (interactive "p")
-  (delete-region (point) (progn (backward-word arg) (point))))
+ (delete-region (point) (progn (backward-word arg) (point))))
+
 (global-set-key (kbd "C-<backspace>") 'backward-delete-word)
 
 ; Custom Dialogue Mode ; --------------------------------------------------------------------------------------
