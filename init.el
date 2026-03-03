@@ -25,6 +25,8 @@
 
 (setq package-native-compile t)
 
+(electric-indent-mode -1)
+
 ; Keybinds ;------------------------------------------------------------------------------------
 (global-unset-key (kbd "RET"))
 (global-set-key (kbd "RET") 'reindent-then-newline-and-indent)
@@ -87,6 +89,12 @@
 
 (global-unset-key (kbd "S-<tab>"))
 (global-set-key (kbd "S-<tab>") 'unindent-lines)
+
+(global-unset-key (kbd "C-="))
+(global-set-key (kbd "C-=") 'text-scale-increase)
+
+(global-unset-key (kbd "C--"))
+(global-set-key (kbd "C--") 'text-scale-decrease)
 
 ; Modern Keybinds ; ------------------------------------------------------------------------------------
 ; Copyright (C) 2024  Arthur Miller
@@ -203,8 +211,8 @@ with the same file extension (if any) as the current buffer."
  '(company-show-quick-access t nil nil "Customized with use-package company")
  '(package-selected-packages
    '(ag avy company dap-mode flycheck helm-xref hydra lsp-mode
-		lsp-pyright magit projectile rustic smartparens treemacs
-		which-key winpulse yasnippet))
+		lsp-pyright magit org-modern projectile rustic smartparens
+		treemacs which-key winpulse yasnippet))
  '(package-vc-selected-packages '((winpulse :url "https://github.com/xenodium/winpulse"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -216,6 +224,7 @@ with the same file extension (if any) as the current buffer."
 (with-eval-after-load 'treemacs
   (setq treemacs-collapse-dirs 0)
   (define-key treemacs-mode-map (kbd "<left>") #'treemacs-COLLAPSE-action)
+  (define-key treemacs-mode-map (kbd "<right>") #'treemacs-next-project)
   (treemacs-git-mode -1))
 
 (helm-mode)
@@ -249,7 +258,7 @@ with the same file extension (if any) as the current buffer."
   (yas-global-mode))
 
 (setq lsp-semantic-tokens-enable t)
-  (setq lsp-clients-clangd-args '("-j=8"
+  (setq lsp-clients-clangd-args '("-j=32"
                                 "--background-index"
                                 "--clang-tidy"
 								"--enable-config"
@@ -295,6 +304,19 @@ with the same file extension (if any) as the current buffer."
   (remove-hook 'magit-status-sections-hook 'magit-insert-bisect-log)
   (remove-hook 'magit-status-sections-hook 'magit-insert-unpushed-to-pushremote)
   (remove-hook 'magit-status-sections-hook 'magit-insert-rebase-sequence))
+
+(with-eval-after-load 'org
+  (global-org-modern-mode)
+  (define-key org-mode-map (kbd "<tab>") 'org-cycle)
+  (define-key org-mode-map (kbd "S-<tab>") 'org-table-previous-field)
+  (define-key org-mode-map (kbd "M-<down>") 'pixel-scroll-up-command)
+  (define-key org-mode-map (kbd "M-<up>") 'pixel-scroll-down-command)
+  (define-key org-mode-map (kbd "C-q") 'org-open-at-point) ; C-g
+  (define-key org-mode-map (kbd "C-r") 'org-ctrl-c-ctrl-c)
+  (define-key org-mode-map (kbd "C-S-r") 'org-todo)
+  (setq org-support-shift-select t)
+  (setq org-modern-timestamp nil)
+  (add-hook 'org-mode-hook 'org-indent-mode))
 
 ; Package Input ; --------------------------------------------------------------------------------------
 (global-unset-key (kbd "C-t"))
