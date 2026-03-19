@@ -316,11 +316,17 @@ with the same file extension (if any) as the current buffer."
   (define-key org-mode-map (kbd "C-S-r") 'org-todo)
   (setq org-support-shift-select t)
   (setq org-modern-timestamp nil)
-  (add-hook 'org-mode-hook 'org-indent-mode))
+  (add-hook 'org-mode-hook (lambda ()
+							 (org-indent-mode)
+							 (setq truncate-lines nil)
+							 (org-cycle-global))))
 
 ; Package Input ; --------------------------------------------------------------------------------------
 (global-unset-key (kbd "C-t"))
-(define-key key-translation-map (kbd "C-t") 'treemacs)
+(global-set-key (kbd "C-t") 'treemacs)
+
+(global-unset-key (kbd "C-S-t"))
+(global-set-key (kbd "C-S-t") 'lsp-treemacs-symbols)
 
 (global-unset-key (kbd "C-e"))
 (global-set-key (kbd "C-e") `helm-mini)
