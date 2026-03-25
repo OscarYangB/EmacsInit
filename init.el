@@ -27,6 +27,8 @@
 
 (electric-indent-mode -1)
 
+(setq undo-limit 500000000)
+
 ; Keybinds ;------------------------------------------------------------------------------------
 (global-unset-key (kbd "RET"))
 (global-set-key (kbd "RET") 'reindent-then-newline-and-indent)
@@ -95,6 +97,18 @@
 
 (global-unset-key (kbd "C--"))
 (global-set-key (kbd "C--") 'text-scale-decrease)
+
+(defun indent-after-yank ()
+  (when (memq this-command '(yank yank-pop))
+    (indent-region (region-beginning) (region-end))))
+
+(add-hook 'post-command-hook 'indent-after-yank)
+
+(defun unindent-before-yank ()
+  (when (memq this-command '(yank yank-pop))
+	(delete-trailing-whitespace (region-beginning) (region-end))))
+
+(add-hook 'pre-command-hook 'unindent-before-yank)
 
 ; Modern Keybinds ; ------------------------------------------------------------------------------------
 ; Copyright (C) 2024  Arthur Miller
@@ -172,6 +186,7 @@ with the same file extension (if any) as the current buffer."
   "C-z" #'undo
   "C-S-z" #'undo-redo
   "C-v" #'yank
+  "C-S-v" #'yank-pop
   "C-d" #'move-end-of-line)
 
 (define-key key-translation-map [?\C-c] [?\C-`])
@@ -211,8 +226,8 @@ with the same file extension (if any) as the current buffer."
  '(company-show-quick-access t nil nil "Customized with use-package company")
  '(package-selected-packages
    '(ag avy company dap-mode flycheck helm-xref hydra lsp-mode
-		lsp-pyright magit org-modern projectile rustic smartparens
-		treemacs which-key winpulse yasnippet))
+		lsp-pyright magit org-modern projectile python-mode rustic
+		smartparens treemacs which-key winpulse yasnippet))
  '(package-vc-selected-packages '((winpulse :url "https://github.com/xenodium/winpulse"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -238,11 +253,8 @@ with the same file extension (if any) as the current buffer."
 (add-hook 'c++-mode-hook 'lsp)
 
 (defun my-c++-mode-hook ()
-  (setq c-basic-offset 4)
-  (c-set-offset 'substatement-open 0))
+  (setq c-basic-offset 4))
 (add-hook 'c++-mode-hook 'my-c++-mode-hook)
-
-(setq c-basic-offset 4)
 
 (setq gc-cons-threshold (* 100 1024 1024)
       read-process-output-max (* 1024 1024)
@@ -274,6 +286,7 @@ with the same file extension (if any) as the current buffer."
   :hook (python-mode . (lambda ()
                           (require 'lsp-pyright)
                           (lsp)
+						  (local-set-key (kbd "RET") 'newline-and-indent)
 						  (setq python-indent 4))))  ; or lsp-deferred
 
 (with-eval-after-load 'company
@@ -314,6 +327,7 @@ with the same file extension (if any) as the current buffer."
   (define-key org-mode-map (kbd "C-q") 'org-open-at-point) ; C-g
   (define-key org-mode-map (kbd "C-r") 'org-ctrl-c-ctrl-c)
   (define-key org-mode-map (kbd "C-S-r") 'org-todo)
+  (define-key org-mode-map (kbd "M-l") 'org-latex-preview)
   (setq org-support-shift-select t)
   (setq org-modern-timestamp nil)
   (add-hook 'org-mode-hook (lambda ()
@@ -477,3 +491,7 @@ With argument ARG, do this that many times."
        :rev :newest)
   :config
   (winpulse-mode +1))
+
+(setq org-format-latex-options '(:foreground default :background default :scale 1.2 :html-foreground
+			 "Black" :html-background "Transparent" :html-scale 1.0
+			 :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")))
