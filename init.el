@@ -29,6 +29,11 @@
 
 (setq undo-limit 500000000)
 
+(setq dired-kill-when-opening-new-dired-buffer t)
+(add-hook 'dired-mode-hook (lambda ()
+  (define-key dired-mode-map (kbd "M-<left>") 'dired-jump)
+  (dired-hide-details-mode)))
+
 ; Keybinds ;------------------------------------------------------------------------------------
 (global-unset-key (kbd "RET"))
 (global-set-key (kbd "RET") 'reindent-then-newline-and-indent)
@@ -97,6 +102,9 @@
 
 (global-unset-key (kbd "C--"))
 (global-set-key (kbd "C--") 'text-scale-decrease)
+
+(global-unset-key (kbd "M-SPC"))
+(global-set-key (kbd "M-SPC") 'exchange-point-and-mark)
 
 (defun indent-after-yank ()
   (when (memq this-command '(yank yank-pop))
@@ -256,6 +264,8 @@ with the same file extension (if any) as the current buffer."
   (setq c-basic-offset 4))
 (add-hook 'c++-mode-hook 'my-c++-mode-hook)
 
+(setq c-basic-offset 4)
+
 (setq gc-cons-threshold (* 100 1024 1024)
       read-process-output-max (* 1024 1024)
       treemacs-space-between-root-nodes nil
@@ -267,6 +277,7 @@ with the same file extension (if any) as the current buffer."
 (with-eval-after-load 'lsp-mode
   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
   (require 'dap-cpptools)
+  (setq lsp-enable-indentation nil)
   (yas-global-mode))
 
 (setq lsp-semantic-tokens-enable t)
@@ -334,6 +345,12 @@ with the same file extension (if any) as the current buffer."
 							 (org-indent-mode)
 							 (setq truncate-lines nil)
 							 (org-cycle-global))))
+
+(add-to-list 'load-path "~/.emacs.d/manual-packages")
+(require 'slang-mode)
+;; Optional: Enable LSP support
+(require 'slang-lsp)
+(slang-lsp-initialize)
 
 ; Package Input ; --------------------------------------------------------------------------------------
 (global-unset-key (kbd "C-t"))
